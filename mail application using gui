@@ -1,0 +1,79 @@
+import tkinter as tk
+from tkinter import messagebox
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from getpass import getpass
+
+# Function to send an email
+def send_email():
+    # Get user inputs
+    recipient = to_entry.get()
+    subject = subject_entry.get()
+    message = message_text.get("1.0", tk.END)
+    
+    # Get the sender's email and password
+    sender = from_entry.get()
+    password = password_entry.get()
+
+    # Create and configure the email message
+    msg = MIMEMultipart()
+    msg['From'] = sender
+    msg['To'] = recipient
+    msg['Subject'] = subject
+
+    body = message
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        # Connect to the SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+
+        # Login to the email account
+        server.login(sender, password)
+
+        # Send the email
+        server.sendmail(sender, recipient, msg.as_string())
+
+        # Close the connection
+        server.quit()
+
+        messagebox.showinfo("Success", "Email sent successfully!")
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to send email: {str(e)}")
+
+# Create the main window
+root = tk.Tk()
+root.title("Email Application")
+
+# Create and configure GUI elements
+from_label = tk.Label(root, text="From:")
+from_label.grid(row=0, column=0, padx=10, pady=5)
+from_entry = tk.Entry(root)
+from_entry.grid(row=0, column=1, padx=10, pady=5)
+
+password_label = tk.Label(root, text="Password:")
+password_label.grid(row=1, column=0, padx=10, pady=5)
+password_entry = tk.Entry(root, show='*')
+password_entry.grid(row=1, column=1, padx=10, pady=5)
+
+to_label = tk.Label(root, text="To:")
+to_label.grid(row=2, column=0, padx=10, pady=5)
+to_entry = tk.Entry(root)
+to_entry.grid(row=2, column=1, padx=10, pady=5)
+
+subject_label = tk.Label(root, text="Subject:")
+subject_label.grid(row=3, column=0, padx=10, pady=5)
+subject_entry = tk.Entry(root)
+subject_entry.grid(row=3, column=1, padx=10, pady=5)
+
+message_label = tk.Label(root, text="Message:")
+message_label.grid(row=4, column=0, padx=10, pady=5)
+message_text = tk.Text(root, height=10, width=40)
+message_text.grid(row=4, column=1, padx=10, pady=5)
+
+send_button = tk.Button(root, text="Send Email", command=send_email)
+send_button.grid(row=5, column=1, padx=10, pady=10)
+
+root.mainloop()
